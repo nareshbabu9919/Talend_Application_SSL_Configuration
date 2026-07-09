@@ -1,0 +1,226 @@
+
+| Application | Type            | HTTPS Configuration                                            |
+| ----------- | --------------- | -------------------------------------------------------------- |
+| TAC         | Apache Tomcat   | Configure Tomcat SSL Connector                                 |
+| TDC         | Embedded Tomcat | Configure Tomcat SSL Connector                                 |
+| TDS         | Spring Boot     | Configure SSL in `data-stewardship.properties`                 |
+| TDP         | Spring Boot     | Configure SSL in `application.properties` or `application.yml` |
+
+---
+
+# Prerequisites
+
+```
+star_cbe_com_et.crt
+DigiCertCA.crt
+star_cbe_com_et.key
+```
+
+> **Important:** If you do **not** have `star_cbe_com_et.key` (the private key), you cannot install the certificate. The private key must be the one that was used to generate the CSR submitted to DigiCert.
+
+---
+
+# Step 1: Create a Directory for SSL Files
+
+```bash
+sudo mkdir -p /appmnt/ssl
+cd /appmnt/ssl
+```
+
+Copy the certificate files:
+
+```bash
+cp star_cbe_com_et.crt /appmnt/ssl/
+cp DigiCertCA.crt /appmnt/ssl/
+cp star_cbe_com_et.key /appmnt/ssl/
+```
+
+---
+
+# Step 2: Create a PKCS#12 Keystore
+
+```bash
+openssl pkcs12 -export \
+-out talend.p12 \
+-inkey star_cbe_com_et.key \
+-in star_cbe_com_et.crt \
+-certfile DigiCertCA.crt
+```
+
+Enter an export password (for example, `changeit`).
+
+---
+
+# Step 3: Convert to a Java Keystore (JKS)
+
+```bash
+keytool -importkeystore \
+-srckeystore talend.p12 \
+-srcstoretype PKCS12 \
+-destkeystore talend.jks \
+-deststoretype JKS
+```
+
+Verify:
+
+```bash
+keytool -list -v -keystore talend.jks
+```
+
+---
+
+# Step 4: Configure HTTPS for TAC
+
+Edit:
+
+```text
+/appmnt/Talend-8.0.1/tac/apache-tomcat/conf/server.xml
+```
+
+Locate the HTTP connector:
+
+```xml
+<Connector port="8080" protocol="HTTP/1.1" ... />
+```
+
+Add or enable an HTTPS connector such as:
+
+```xml
+<Connector
+    port="8443"
+    protocol="org.apache.coyote.http11.Http11NioProtocol"
+    SSLEnabled="true"
+    scheme="https"
+    secure="true"
+    keystoreFile="/appmnt/ssl/talend.jks"
+    keystorePass="changeit"
+    keystoreType="JKS"
+    sslProtocol="TLS"/>
+```
+
+Restart TAC:
+
+```bash
+/appmnt/Talend-8.0.1/tac/apache-tomcat/bin/shutdown.sh
+/appmnt/Talend-8.0.1/tac/apache-tomcat/bin/startup.sh
+```
+
+---
+
+# Step 5: Configure HTTPS for TDC
+
+Edit:
+
+```text
+/appmnt/TalendDataCatalog/tomcat/conf/server.xml
+```
+
+Add or update the HTTPS connector:
+
+```xml
+<Connector
+    port="8443"
+    protocol="org.apache.coyote.http11.Http11NioProtocol"
+    SSLEnabled="true"
+    scheme="https"
+    secure="true"
+    keystoreFile="/appmnt/ssl/talend.jks"
+    keystorePass="changeit"
+    keystoreType="JKS"
+    sslProtocol="TLS"/>
+```
+
+Restart TDC:
+
+```bash
+/appmnt/TalendDataCatalog/tomcat/bin/shutdown.sh
+/appmnt/TalendDataCatalog/tomcat/bin/startup.sh
+```
+
+---
+
+# Step 6: Configure HTTPS for TDS
+
+Edit:
+
+```text
+/appmnt/Talend-8.0.1/tds/config/data-stewardship.properties
+```
+
+Add or update the SSL properties:
+
+```properties
+server.port=8443
+server.ssl.enabled=true
+server.ssl.key-store=/appmnt/ssl/talend.jks
+server.ssl.key-store-password=changeit
+server.ssl.key-store-type=JKS
+```
+
+Restart TDS using your normal startup/restart procedure (or the service manager if TDS is managed as a service).
+
+---
+
+# Step 7: Configure HTTPS for TDP
+
+Edit the configuration file (depending on your version):
+
+```text
+/appmnt/Talend-8.0.1/dataprep/config/application.properties
+```
+
+or
+
+```text
+/appmnt/Talend-8.0.1/dataprep/config/application.yml
+```
+
+For `application.properties`, add:
+
+```properties
+server.port=8443
+server.ssl.enabled=true
+server.ssl.key-store=/appmnt/ssl/talend.jks
+server.ssl.key-store-password=changeit
+server.ssl.key-store-type=JKS
+```
+
+Restart TDP using its normal startup/restart procedure or service manager.
+
+---
+
+# Step 8: Verify HTTPS
+
+Check that each application is listening on the HTTPS port:
+
+```bash
+ss -tlnp | grep 8443
+```
+
+Verify the certificate:
+
+```bash
+openssl s_client -connect <hostname>:8443
+```
+
+Or access each application in a browser using `https://`.
+
+---
+
+## Important Notes
+
+1. **Back up all configuration files** (such as `server.xml` and application configuration files) before making changes.
+2. **Do not disable the existing HTTP connector** until HTTPS has been tested successfully.
+3. If your applications are accessed through an external **Apache HTTP Server**, **Nginx**, or a **load balancer**, you may instead terminate SSL there and keep the backend applications on HTTP. In that case, the configuration steps are different.
+4. Use the **same JKS keystore** for TAC, TDC, TDS, and TDP if they all use the same server certificate and hostname (for example, `*.cbe.com.et`).
+
+Since you're working with Talend 8.0.1, I recommend first checking **how HTTPS is currently handled**. Many Talend deployments use an external reverse proxy (Apache or Nginx) instead of enabling HTTPS separately in every application. If you can share the outputs of:
+
+```bash
+ss -tlnp | grep -E '80|443|8080|8443'
+```
+
+and
+
+```bash
+ps -ef | grep -Ei 'httpd|apache|nginx'
