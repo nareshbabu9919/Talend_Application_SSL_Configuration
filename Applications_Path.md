@@ -1,4 +1,4 @@
-# 1. Talend Data Catalog (TDC)
+# 1.Talend Data Catalog (TDC)
 
 Installation Directory:   /appmnt/TalendDataCatalog
 
