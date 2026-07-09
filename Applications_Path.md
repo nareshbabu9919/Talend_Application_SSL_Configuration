@@ -1,14 +1,14 @@
 # 1.Talend Data Catalog (TDC)
 
-Installation Directory:   /appmnt/TalendDataCatalog
+Installation Directory:   ```/appmnt/TalendDataCatalog ```
 
-Web Server:               Embedded Tomcat
+Web Server:               ``` Embedded Tomcat ```
 
-Tomcat Directory:         /appmnt/TalendDataCatalog/tomcat
+Tomcat Directory:         ``` /appmnt/TalendDataCatalog/tomcat ``
 
-Tomcat Configuration:     /appmnt/TalendDataCatalog/tomcat/conf/server.xml
+Tomcat Configuration:     ``` /appmnt/TalendDataCatalog/tomcat/conf/server.xml ```
 
-Data Directory:           / appmnt/TalendDataCatalog/data
+Data Directory:           ``` / appmnt/TalendDataCatalog/data ```
 
 Startup Scripts:
 ```
@@ -19,13 +19,13 @@ Startup Scripts:
 
 # 2. Talend Administration Center (TAC)
 
-Installation Directory: /appmnt/Talend-8.0.1/tac
+Installation Directory: ``` /appmnt/Talend-8.0.1/tac ```
 
-Web Server:             Apache Tomcat
+Web Server:            ``` Apache Tomcat ```
 
-Tomcat Directory:       /appmnt/Talend-8.0.1/tac/apache-tomcat
+Tomcat Directory:       ``` /appmnt/Talend-8.0.1/tac/apache-tomcat ```
 
-Tomcat Configuration:   /appmnt/Talend-8.0.1/tac/apache-tomcat/conf/server.xml
+Tomcat Configuration:  ``` /appmnt/Talend-8.0.1/tac/apache-tomcat/conf/server.xml ```
 
 Startup Scripts:
 ```
@@ -36,15 +36,15 @@ Startup Scripts:
 
 # 3. Talend Data Stewardship (TDS)
 
-Installation Directory:   /appmnt/Talend-8.0.1/tds
+Installation Directory:   ``` /appmnt/Talend-8.0.1/tds ```
 
-Application Type:         Spring Boot
+Application Type:         ``` Spring Boot ```
 
-Configuration Directory:  /appmnt/Talend-8.0.1/tds/config
+Configuration Directory:  ``` /appmnt/Talend-8.0.1/tds/config ```
 
-Main Configuration File:  /appmnt/Talend-8.0.1/tds/config/data-stewardship.properties
+Main Configuration File:  ``` /appmnt/Talend-8.0.1/tds/config/data-stewardship.properties ```
 
-Application Logs:         /appmnt/Talend-8.0.1/tds/logs
+Application Logs:         ``` /appmnt/Talend-8.0.1/tds/logs ```
 
 
 Startup Scripts:
@@ -56,13 +56,13 @@ Startup Scripts:
 
 # 4. Talend Data Preparation (TDP)
 
-Installation Directory:    /appmnt/Talend-8.0.1/dataprep
+Installation Directory:    ``` /appmnt/Talend-8.0.1/dataprep ```
 
-Application Type:          Spring Boot
+Application Type:          ``` Spring Boot ```
 
-Configuration Directory:   /appmnt/Talend-8.0.1/dataprep/config
+Configuration Directory:  ``` /appmnt/Talend-8.0.1/dataprep/config ```
 
-Main Configuration Files:  /appmnt/Talend-8.0.1/dataprep/config/application.properties
+Main Configuration Files:  ``` /appmnt/Talend-8.0.1/dataprep/config/application.properties ```
 
 Startup Scripts:
 ```
